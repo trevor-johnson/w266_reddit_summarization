@@ -15,113 +15,95 @@
 
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{Instructions for Africa-NLP Workshop at EACL2021}
+\title{Summarization for Social Media by Genre}
 
-\author{First Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  \texttt{email@domain} \\\And
-  Second Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  \texttt{email@domain} \\}
+\author{Trevor Johnson \\
+  UC Berkeley  \\
+  \texttt{trevorj@berkeley.edu} \\\And
+  Andrew Beckerman \\
+  UC Berkeley \\
+  \texttt{abeckerman@berkeley.edu} \\}
 
 \date{}
 
 \begin{document}
 
-  %\maketitle
+\maketitle
 \begin{abstract}
-We present a method to produce abstractive summaries of informal social media text that are xx words in length via [neural abstractive summarization]. Most summarization research is focused on new articles, we examine informal social media text. We show that [training and fine-tuning models on specific genres improves peformance/produces higher rouge scores]
+We present a method to produce abstractive summaries of informal social media text that are ~[avg # of words] words in length via neural abstractive summarization. We test models that have achieved state of the art summarization performance in the news domain and evaluate their performance in the social media domain.
+In addition, we test models trained on a specific against general models trained on all genres. We take this opportunity to show that [training and fine-tuning models on specific genres produces higher rouge scores].
 
-As social media popularity rises the need for summarizing more informal text may become more pressing
+EXTRA
+ to the best of our knowledge not much has been explored in this area (reword) many of the most popular datasets most commonly used for single-document summarization do not have a genre feature 
 
 \end{abstract}
 
-
 \section{Introduction}
 
-Text summarization is important for faster consumption, saving time, and still providing the gist of an article. Figuring out what is ‘important’ in text summarization is challenging because the answer is highly dependent on the domain of the text, the target audience, and the goal of the summary itself. New models on unique social media dataset and new method (using genre specific models)
+Text summarization is important for faster consumption of articles and text, saving time, and still providing the reader with the gist of an article. Figuring out what is ‘important’ in text summarization is challenging because the answer is highly dependent on the domain of the text, the target audience, and the goal of the summary itself. 
 
-We use a reddit dataset "the abbrevia-
-tion TL;DR, originally used as a response mean-
-ing “too long; didn’t read” to call out on unneces-
-sarily long posts, has been adopted by many so-
-cial media users writing long posts in anticipa-
-tory obedience and now typically indicates that
-a summary of the entire post follows. This pro-
-vides us with a text and its summary—both writ-
-ten by the same person" [reference http://aclanthology.lst.uni-saarland.de/W17-4508.pdf]
+Most summarization research is focused on new articles. However, as social media popularity increases, and in turn the generation of informal text, the need to summarize more informal text will become more demanding.
 
+With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017) for our modeling. This dataset provides a summarization corpus from the domain of social media, consisting of 3 million reddit posts alongside so-called TL;DR summaries meaning "too long; didn't read".  These TLD;DR summaries are written by social media posters writing long posts in anticipation of readers not having the patience to read an entire post. This gives us a text and summary written by the same person.
 
-The following instructions are directed to authors of papers submitted to EACL 2021 or accepted for publication in its proceedings.
-All authors are required to adhere to these specifications.
-Authors are required to provide a Portable Document Format (PDF) version of their papers.
-\textbf{The proceedings are designed for printing on A4 paper.}
+In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' (advice/story, gaming, 'media/lifestyle/sports' and 'other') and an overall model to evaluate whether a genre specific model can outperform a general model. We used the subreddit \footnote{Subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the 'genre' of the post. We feel the usefulness for understanding the importance of a genre could potentially extend beyond social media and be helpful in text summarization in many other domains including news articles.
 
+We evaluate the model performance by using ROUGE metrics and manually evaluating the submissions.
 
-
-\paragraph{\LaTeX-specific details:}
-The templates include the \LaTeX2e{} source (\texttt{\small eacl2021.tex}),
-the \LaTeX2e{} style file used to format it (\texttt{\small eacl2021.sty}),
-an ACL bibliography style (\texttt{\small acl\_natbib.bst}),
-an example bibliography (\texttt{\small acl2020.bib}),
-and the bibliography for the ACL Anthology (\texttt{\small anthology.bib}).
-
+[reference http://aclanthology.lst.uni-saarland.de/W17-4508.pdf]}
 
 \section{Background}
 \label{sec:length}
 
-We used ROUGE (Lin, 2004)to evaluate..The first attempt at abstractive summarization was (presented?) by  Rush et al. (2015)
+In 2018 a tldr challenge (Syed et al., 2018) was organized where participants would submit a model to do abstractive summarization on the same Webis-TLDR-17 corpus dataset. 5 submissions were evaluated. Models such as a fine-tuned BERT-based extractive, x, and x were submitted.  
 
-most models have been evaluated exclusively on news corpor
+One of the metrics they used for evaluation was ROUGE. We include these models and respective ROUGE scores in this paper as a way to benchmark our own models performance.
 
-Specific to this genre..xx ran a tldr challenge..
+However, no models were trained and tested on specific subreddits or genres. In this paper we hope to test this theory.
+
+EXTRA
+
+The first attempt at abstractive summarization was (presented?) by  Rush et al. (2015). 
+
+These models were evaluated on the fraction of n-grams in the summary that are absent from the text as its novelty defining the ground truth as having the highest novelty. 
 
 %https://webis.de/downloads/publications/papers/syed_2019.pdf
 
-We invite submissions of long (up to 8 pages) and short (up to 4 pages) research papers, resource papers, position papers, tutorial/overview papers, and system design papers. We emphasize the reproducibility of empirical results and accessibility of resources in assessing the quality of submissions. We grant unlimited appendix and space for the author names, as well as we encourage shorter submissions.
-
-In the interest of inspiring more scientific discourse in non-English languages, we invite researchers to include an abstract in their home language.
-
-Submissions will be non-archival. Dual submissions are allowed as well but must be indicated. The review process will be double-blind, hence paper submissions must be anonymized.
 \\
-
-For both long and short papers, all illustrations and tables that are part of the main text must be accommodated within these page limits, observing the formatting instructions given in the present document.
 
 \section{Methods}
 
-As reviewing will be double-blind, papers submitted for review should not include any author information (such as names or affiliations). Furthermore, self-references that reveal the author's identity, \emph{e.g.},
-\begin{quote}
-%We previously showed \citep{Gusfield:97} \ldots
-\end{quote}
-should be avoided. Instead, use citations such as
-\begin{quote}
-%\citet{Gusfield:97} previously showed\ldots
-\end{quote}
-Please do not use anonymous citations and do not include acknowledgements.
-\textbf{Papers that do not conform to these requirements may be rejected without review.}
+An initial investigation into the dataset showed that some posts/summaries nonsensically repeat the same word over and over, or would be overly long (over x number of words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and >= 10 unique words. In addition, each summary would only be between 2 - 100 total words and >= 2 unique words. With these filters in place, it shrunk our total dataset to x number of posts.
 
-Any preliminary non-archival versions of submitted papers should be listed in the submission form but not in the review version of the paper.
-Reviewers are generally aware that authors may present preliminary versions of their work in other venues, but will not be provided the list of previous presentations from the submission form.
-
-Once a paper has been accepted to the conference, the camera-ready version of the paper should include the author's names and affiliations, and is allowed to use self-references.
-
-\paragraph{\LaTeX-specific details:}
-For an anonymized submission, ensure that {\small\verb|\aclfinalcopy|} at the top of this document is commented out, and that you have filled in the paper ID number (assigned during the submission process on softconf) where {\small\verb|***|} appears in the {\small\verb|\def\aclpaperid{***}|} definition at the top of this document.
-For a camera-ready submission, ensure that {\small\verb|\aclfinalcopy|} at the top of this document is not commented out.
+We trained a BART and a PEGASUS model that was fine-tuned on 50k observations and tested on 5k observations.
 
 
-\section{Multiple Submission Policy}
+\section{Results and discussion}
+
+\begin{table}
+\centering
+\begin{tabular}{lrll}
+\hline \textbf{Model} & \textbf{R-1} & \textbf{R-2} & \textbf{R-L} \\ \hline
+BART & x & x & x \\
+PEGASUS & x & x & x \\
+unified-pgn* & 19 & 4 & 15 \\
+unified-vae-pgn* & 19 & 4 & 15 \\
+transf-seq2seq* & 19 & 5 & 14 \\
+pseudo-self-attn* & 18 & 4 & 13 \\
+tldr-bottom-up* & 20 & 4  & 15\\
+\hline
+\end{tabular}
+\caption{\label{font-table} ROUGE-1,2, and L scores for the generated summaries and average word length}
+\end{table}
+
+
 Papers that have been or will be submitted to other meetings or publications must indicate this at submission time in the START submission form, and must be withdrawn from the other venues if accepted by EACL 2021. Authors of papers accepted for presentation at EACL 2021 must notify the program chairs by the camera-ready deadline as to whether the paper will be presented. We will not accept for publication or presentation the papers that overlap significantly in content or results with papers that will be (or have been) published elsewhere.
 
 Authors submitting more than one paper to EACL 2021 must ensure that submissions do not overlap significantly ($>25\%$) with each other in content or results.
 
 
 
-\section{Formatting Instructions}
+\section{Conclusion}
 
 Manuscripts must be in two-column format.
 Exceptions to the two-column format include the title, authors' names and complete addresses, which must be centered at the top of the first page, and any full-width figures or tables (see the guidelines in Section~\ref{ssec:title-authors}).
