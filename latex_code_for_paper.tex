@@ -6,16 +6,20 @@
     %Results and discussion  (include plots & figures, and detailed analysis in comparison to baseline and the literature, if applicable)
     %Conclusion
 
-\documentclass{article}
-%\usepackage[hyperref]{eacl2021}
+%\documentclass{article}
+\documentclass[11pt,twocolumn]{article}
+\usepackage[hyperref]{eacl2021}
 \usepackage{times}
 \usepackage{latexsym}
-%\renewcommand{\UrlFont}{\ttfamily\small}
+\renewcommand{\UrlFont}{\ttfamily\small}
+
+
 \usepackage{microtype}
+
 
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{Summarization for Social Media by Genre}
+\title{Summarization for Social Media: Genre Specific}
 
 \author{Trevor Johnson \\
   UC Berkeley  \\
@@ -28,10 +32,12 @@
 
 \begin{document}
 
+
 \maketitle
 \begin{abstract}
-We present a method to produce abstractive summaries of informal social media text that are ~[avg # of words] words in length via neural abstractive summarization. We test models that have achieved state of the art summarization performance in the news domain and evaluate their performance in the social media domain.
-In addition, we test models trained on a specific against general models trained on all genres. We take this opportunity to show that [training and fine-tuning models on specific genres produces higher rouge scores].
+
+We present a method to produce abstractive summaries of informal social media text via neural abstractive summarization. We test models that have achieved state of the art text summarization performance in the news domain and evaluate their performance in the social media domain.
+In addition, we test models trained on a specific genre against general models trained on all genres. We take this opportunity to show that [training and fine-tuning models on specific genres produces higher rouge scores].
 
 EXTRA
  to the best of our knowledge not much has been explored in this area (reword) many of the most popular datasets most commonly used for single-document summarization do not have a genre feature 
@@ -42,11 +48,11 @@ EXTRA
 
 Text summarization is important for faster consumption of articles and text, saving time, and still providing the reader with the gist of an article. Figuring out what is ‘important’ in text summarization is challenging because the answer is highly dependent on the domain of the text, the target audience, and the goal of the summary itself. 
 
-Most summarization research is focused on new articles. However, as social media popularity increases, and in turn the generation of informal text, the need to summarize more informal text will become more demanding.
+Most summarization research is focused on new articles. However, as social media popularity increases, and in turn the generation of informal text, the need to summarize informal text will become more demanding.
 
-With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017) for our modeling. This dataset provides a summarization corpus from the domain of social media, consisting of 3 million reddit posts alongside so-called TL;DR summaries meaning "too long; didn't read".  These TLD;DR summaries are written by social media posters writing long posts in anticipation of readers not having the patience to read an entire post. This gives us a text and summary written by the same person.
+With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017), a social media dataset, for our text summarization modeling. This dataset provides a summarization corpus from the domain of social media, consisting of 3 million reddit posts alongside so-called TL;DR summaries meaning "too long; didn't read".  These TL;DR summaries are written by social media posters writing long posts in anticipation of readers not having the patience to read an entire post. This gives us a text and summary written by the same person.
 
-In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' (advice/story, gaming, 'media/lifestyle/sports' and 'other') and an overall model to evaluate whether a genre specific model can outperform a general model. We used the subreddit \footnote{Subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the 'genre' of the post. We feel the usefulness for understanding the importance of a genre could potentially extend beyond social media and be helpful in text summarization in many other domains including news articles.
+In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' ('advice/story', 'gaming', 'media/lifestyle/sports' and 'other') and an overall model to evaluate whether a genre specific model can outperform a general model. We used the subreddit \footnote{Subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the 'genre' of the post. We feel the usefulness for understanding the importance of a genre could potentially extend beyond social media and be helpful in text summarization in many other domains including news articles.
 
 We evaluate the model performance by using ROUGE metrics and manually evaluating the submissions.
 
@@ -55,11 +61,11 @@ We evaluate the model performance by using ROUGE metrics and manually evaluating
 \section{Background}
 \label{sec:length}
 
-In 2018 a tldr challenge (Syed et al., 2018) was organized where participants would submit a model to do abstractive summarization on the same Webis-TLDR-17 corpus dataset. 5 submissions were evaluated. Models such as a fine-tuned BERT-based extractive, x, and x were submitted.  
+In 2018 a tldr challenge (Syed et al., 2018) was organized where participants submitted a model to do abstractive summarization on the same Webis-TLDR-17 corpus dataset. 5 submissions were evaluated. Models such as a fine-tuned BERT-based extractive, x, and x were submitted.  
 
-One of the metrics they used for evaluation was ROUGE. We include these models and respective ROUGE scores in this paper as a way to benchmark our own models performance.
+One of the metrics they used to evaluate the models was ROUGE. We include these models and respective ROUGE scores in this paper as a way to benchmark our own models performance.
 
-However, no models were trained and tested on specific subreddits or genres. In this paper we hope to test this theory.
+No models were trained and tested on specific subreddits or genres. 
 
 EXTRA
 
@@ -73,7 +79,7 @@ These models were evaluated on the fraction of n-grams in the summary that are a
 
 \section{Methods}
 
-An initial investigation into the dataset showed that some posts/summaries nonsensically repeat the same word over and over, or would be overly long (over x number of words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and >= 10 unique words. In addition, each summary would only be between 2 - 100 total words and >= 2 unique words. With these filters in place, it shrunk our total dataset to x number of posts.
+An initial investigation into the dataset showed that some posts/summaries nonsensically repeated the same word over and over, or would be extremely lengthy (over x number of words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and $\geq$ 10 unique words. In addition, each summary would only be between 2 - 100 total words and $\geq$ 2 unique words. With these filters in place, it shrunk our total dataset to x number of posts.
 
 We trained a BART and a PEGASUS model that was fine-tuned on 50k observations and tested on 5k observations.
 
@@ -96,13 +102,6 @@ tldr-bottom-up* & 20 & 4  & 15\\
 \caption{\label{font-table} ROUGE-1,2, and L scores for the generated summaries and average word length}
 \end{table}
 
-
-Papers that have been or will be submitted to other meetings or publications must indicate this at submission time in the START submission form, and must be withdrawn from the other venues if accepted by EACL 2021. Authors of papers accepted for presentation at EACL 2021 must notify the program chairs by the camera-ready deadline as to whether the paper will be presented. We will not accept for publication or presentation the papers that overlap significantly in content or results with papers that will be (or have been) published elsewhere.
-
-Authors submitting more than one paper to EACL 2021 must ensure that submissions do not overlap significantly ($>25\%$) with each other in content or results.
-
-
-
 \section{Conclusion}
 
 Manuscripts must be in two-column format.
@@ -115,6 +114,8 @@ Pages should be numbered in the version submitted for review, but \textbf{pages 
 \paragraph{\LaTeX-specific details:}
 The style files will generate page numbers when {\small\verb|\aclfinalcopy|} is commented out, and remove them otherwise.
 
+
+\section{References}
 
 \subsection{File Format}
 \label{sect:pdf}
@@ -345,6 +346,10 @@ Gather the full set of references together under the heading \textbf{References}
 Arrange the references alphabetically by first author, rather than by order of occurrence in the text.
 
 
+Provide as complete a citation as possible, using a consistent format, such as the one for \emph{Computational Linguistics\/} or the one in the  \emph{Publication Manual of the American 
+Psychological Association\/}~\citep{APA:83}.
+Use full names for authors, not just initials.
+
 Submissions should accurately reference prior and related work, including code and data.
 If a piece of prior work appeared in multiple venues, the version that appeared in a refereed, archival venue should be referenced.
 If multiple versions of a piece of prior work exist, the one used by the authors should be referenced.
@@ -352,10 +357,10 @@ Authors should not rely on automated citation indices to provide accurate refere
 
 The following text cites various types of articles so that the references section of the present document will include them.
 \begin{itemize}
-\item Example article in journal:
-\item Example article in proceedings, with location:
-\item Example article in proceedings, without location:
-\item Example arxiv paper:
+\item Example article in journal: \citep{Ando2005}.
+\item Example article in proceedings, with location: \citep{borschinger-johnson-2011-particle}.
+\item Example article in proceedings, without location: \citep{andrew2007scalable}.
+\item Example arxiv paper: \citep{rasooli-tetrault-2015}. 
 \end{itemize}
 
 
@@ -367,7 +372,7 @@ If your own bib file is named \texttt{\small eacl2021.bib}, then placing the fol
 \verb|\bibliography{eacl2021}|
 \end{quote}
 
-You can obtain the complete ACL Anthology
+You can obtain the complete ACL Anthology as a Bib\TeX\ file from \url{https://aclweb.org/anthology/anthology.bib.gz}.
 To include both the anthology and your own bib file, use the following instead of the above.
 \begin{quote}\small
 \verb|\bibliographystyle{acl_natbib}|\\
@@ -465,8 +470,6 @@ features or feature templates, sample inputs and outputs for a system, pseudo-co
 (Source code and data should be separate uploads, rather than part of the paper).
 
 The paper should not rely on the supplementary material: while the paper may refer to and cite the supplementary material and the supplementary material will be available to the reviewers, they will not be asked to review the supplementary material.
-
-
 
 
 Hello World
