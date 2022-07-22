@@ -1,0 +1,140 @@
+
+
+    %Abstract
+    %Introduction (motivation for your work)
+    %Background (literature review, or related work)
+    %Methods (design and implementation)
+    %Results and discussion  (include plots & figures, and detailed analysis in comparison to baseline and the literature, if applicable)
+    %Conclusion
+
+%\documentclass{article}
+\documentclass[11pt,a4paper, twocolumn]{article}
+\usepackage[hyperref]{eacl2021}
+\usepackage{times}
+\usepackage{latexsym}
+\renewcommand{\UrlFont}{\ttfamily\small}
+\usepackage[nomarkers,nolists]{endfloat}
+
+\usepackage{microtype}
+
+
+\newcommand\BibTeX{B\textsc{ib}\TeX}
+
+\title{Summarization for Social Media: Genre Specific}
+
+\author{Trevor Johnson \\
+  UC Berkeley  \\
+  \texttt{trevorj@berkeley.edu} \\\And
+  Andrew Beckerman \\
+  UC Berkeley \\
+  \texttt{abeckerman@berkeley.edu} \\}
+
+\date{}
+
+\begin{document}
+
+
+\maketitle
+\begin{abstract}
+
+We present a method to produce abstractive summaries of informal social media text via neural abstractive summarization. We test models that have achieved state of the art text summarization performance in the news domain and evaluate their performance in the social media domain.
+In addition, we test models trained on a specific genre against general models trained on all genres. We take this opportunity to show that [training and fine-tuning models on specific genres produces higher rouge scores].
+
+\end{abstract}
+
+\section{Introduction}
+
+Text summarization is important for faster consumption of articles and text, saving time, and still providing the reader with the gist of an article. Figuring out what is ‘important’ in text summarization is challenging because the answer is highly dependent on the domain of the text, the target audience, and the goal of the summary itself.
+
+Most summarization research is focused on new articles. However, as social media popularity increases, and in turn the generation of informal text, the need to summarize informal text will become more demanding.
+
+With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017), a social media dataset, for our text summarization modeling. This dataset provides a summarization corpus from the domain of social media, consisting of 3 million reddit posts alongside so-called TL;DR summaries meaning "too long; didn't read".  These TL;DR summaries are written by social media posters writing long posts in anticipation of readers not having the patience to read an entire post. This gives us a text and summary written by the same person.
+
+In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' ('advice/story', 'gaming', 'media/lifestyle/sports' and 'other') and an overall model to evaluate whether a genre specific model can outperform a general model. To categorize the observations into different genres we used the subreddit \footnote{Subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the 'genre' of the post. We feel the usefulness for understanding the importance of a genre could potentially extend beyond social media and be helpful in text summarization in many other domains including news articles.
+
+We evaluate the model performance by using ROUGE metrics and manually evaluating the submissions.
+
+[reference http://aclanthology.lst.uni-saarland.de/W17-4508.pdf]}
+
+\begin{table}
+\centering
+\begin{tabular}{lrll}
+\hline \textbf{Dataset} & \textbf{# docs (train/val/test} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
+%\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
+Overall & x & x & x \\
+Advice/Story & 15,000/1,000/1,000 & x & x \\
+Gaming & 15,000/1,000/1,000 & 4 & 15 \\
+Media/Lifestyle/Sports & 15,000/1,000/1,000 & 4 & 15 \\
+Other & 15,000/1,000/1,000 & 5 & 14 \\
+\hline
+\end{tabular}
+\caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
+test set, and average post and summary length (in terms of words and sentences)}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{llllll}
+\hline \textbf{Dataset} & \textbf{# docs (train/val/test} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
+%\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
+Overall & x & x & x \\
+Advice/Story & 15,000/1,000/1,000 & x & x \\
+Gaming & 15,000/1,000/1,000 & 4 & 15 \\
+Media/Lifestyle/Sports & 15,000/1,000/1,000 & 4 & 15 \\
+Other & 15,000/1,000/1,000 & 5 & 14 \\
+\hline
+\end{tabular}
+\caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
+test set, and average post and summary length (in terms of words and sentences)}
+\end{table}
+
+\section{Background}
+\label{sec:length}
+
+In 2018 a tldr challenge (Syed et al., 2018) was organized where participants submitted a model to do abstractive summarization on the same Webis-TLDR-17 corpus dataset. 5 submissions were evaluated. Models such as a fine-tuned BERT-based extractive, x, and x were submitted.
+
+One of the metrics they used to evaluate the models was ROUGE. We include these models and respective ROUGE scores in this paper as a way to benchmark our own models performance.
+
+No models were trained and tested on specific subreddits or genres.
+
+%https://webis.de/downloads/publications/papers/syed_2019.pdf
+
+\\
+
+\section{Methods}
+
+An initial investigation into the dataset showed that some posts/summaries nonsensically repeated the same word over and over, or would be extremely lengthy (over x number of words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and $\geq$ 10 unique words. In addition, each summary would only be between 2 - 100 total words and $\geq$ 2 unique words. With these filters in place, it shrunk our total dataset to x number of posts.
+
+The input document was truncated to 1024 tokens and the length of the summary to 128 tokens. 
+
+We used a BART model that was pre-trained on the XSUM and CNN data sets. We then fine-tuned the model on 60k posts and summaries and tested on 4k posts and summaries. In addition, we also trained 4 'genre-specific' BART models that were only trained on posts related to the genre for that specific model. 
+
+We used ROUGE metrics to evaluate the model. We chose ROUGE because it is the most commonly used metic and we wanted to benchmark our model performance against models that were submitted from other papers. While evaluating the results from our model, we noticed that some summaries were not semantically accurate and we wanted to supplement our ROUGE metric with another metric to get a more a wholistic understanding of how our model was performing. In lieu of this, we decided to 'hand' grade x # of summaries and used these as the target summary to ensure the summaries were semantically accurate as well. 
+
+
+FIGURE OF AN EXAMPLE POST SHOWING A SUMMARY NOT DOING A GIVING A GREAT SUMMARY
+
+
+\section{Results and discussion}
+
+\begin{table}
+\centering
+\begin{tabular}{lrlll}
+\hline \textbf{Model} & \textbf{R-1} & \textbf{R-2} & \textbf{R-L} & \textbf{Gen Len} \\ \hline
+BART & x & x & x & x \\
+unified-pgn* & 19 & 4 & 15 & x \\
+unified-vae-pgn* & 19 & 4 & 15 & x \\
+transf-seq2seq* & 19 & 5 & 14 & x \\
+pseudo-self-attn* & 18 & 4 & 13 & x \\
+tldr-bottom-up* & 20 & 4  & 15 & x\\
+\hline
+\end{tabular}
+\caption{\label{font-table} ROUGE-1,2, and L scores for the generated summaries and average word length}
+\end{table}
+
+\section{Conclusion}
+
+
+
+\end{document}
+
