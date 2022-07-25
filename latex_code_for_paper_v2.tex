@@ -9,9 +9,10 @@
 
 %\documentclass{article}
 \documentclass[11pt,a4paper, twocolumn]{article}
-\usepackage[hyperref]{eacl2021}
+%\usepackage[hyperref]{eacl2021}
 \usepackage{times}
 \usepackage{latexsym}
+\usepackage{graphicx}
 \renewcommand{\UrlFont}{\ttfamily\small}
 \usepackage[nomarkers,nolists]{endfloat}
 
@@ -101,9 +102,73 @@ No models were trained and tested on specific subreddits or genres.
 
 \\
 
-\section{Methods}
+\section{Methods and Data}
 
-An initial investigation into the dataset showed that some posts/summaries nonsensically repeated the same word over and over, or would be extremely lengthy (over x number of words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and $\geq$ 10 unique words. In addition, each summary would only be between 2 - 100 total words and $\geq$ 2 unique words. With these filters in place, it shrunk our total dataset to x number of posts.
+\subsection{Exploratory Data Analysis}
+
+Before modeling, we performed exploratory data analysis to understand the reddit data. 
+The dataset consisted of 3.8 million observations, each containing the full reddit post, the "TLDR" or summary of the post, and the subreddit. 
+We counted the number of words in each reddit post and summary by splitting on white space. 
+The number of words in both the posts and summaries were heavily skewed right with average lengths of 278 and 27 respectively. 
+While there were some posts and summaries with over 1,000 words, most had word counts in a reasonable range with 90\% of the posts containing between 42 and 795 words, and 90\% of the summaries containing between 3 and 75 words. 
+Figure 1 shows histograms for the distribution of the distinct and total word counts for the reddit posts and summaries in our dataset. 
+
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{word_counts.png}
+  \caption{Word count distributions}
+  \label{fig:word_counts}
+\end{figure}
+
+\subsection{Subreddit Genres}
+
+An initial investigation into the contents of the reddit posts and summaries showed that some contents nonsensically repeated the same word over and over, or would be extremely lengthy (over 3,000 words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and $\geq$ 10 unique words. In addition, each summary would only be between 2 - 100 total words and $\geq$ 2 unique words. With these filters in place, about 300,000 records were removed from our dataset. 
+
+Next, we explored the many subreddits in our dataset as we hoped to use this information to create segmented NLP models. 
+Because there were over 28,000 distinct subreddits in our dataset, it would be unreasonable to build separate NLP models for every distinct subreddit. 
+Thus, we sought to group these subreddits into categories based on genre. 
+We considered creating a separate NLP model or use unsupervised learning techniques to systematically cluster the subreddits into similar categories, 
+but we ended up taking the time to group the subreddits into genres by hand and through regex keywords. 
+In the end, we grouped the data into 4 distinct subreddit categories: gaming, advice/story, media/lifestyle/sports, and other. 
+Several posts clearly overlapped with several different genres, but we felt this was a simple approach to create good enough separations to train different NLP models on. 
+The counts for each subreddit genre can be found in figure 2. 
+
+\begin{table}
+  \centering
+  \begin{tabular}{lrlll}
+  \hline \textbf{Subreddit Genre} & \textbf{Post Count}\\ \hline
+  Advice/Story & 1409813 \\
+  Gaming & 501041 \\
+  Media/Liftstyle/Sports & 455228 \\
+  Other & 1184045 \\
+  \hline
+  \end{tabular}
+  \caption{\label{font-table} Subreddit Genres}
+\end{table}
+
+
+\subsection{Modeling}
+
+Sequence to sequence based transformer architectures have proven to achieve state of the art performance on the task of abstractive summarization (reference some paper in here: https://paperswithcode.com/task/text-summarization). 
+Aghajanyan et al (cite this paper properly: https://arxiv.org/pdf/2008.03156v1.pdf) have achieved state of the art performance on a similar but smaller Reddit dataset with the challenge of abstractive summarization. 
+This paper describes using a variation of the BART model to achieve state of the art performance of abstractive summarization on the Reddit TIFU subreddit. 
+Seeing as BART has proven to achieve strong results for abstractive summarization on similar datasets, we decided to focus our efforts on using this model for our Reddit summarization task. 
+
+After we began experimenting with training BART models on our dataset and generating summaries, we quickly realized the scale of our dataset would be a problem. 
+We frequently ran out of memory, or would exhaust compute times at our disposal. 
+Thus, we decided to downsample our large dataset to a more reasonable size for this project. 
+From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups leaving us with a total of 68,000 observations for our analysis. 
+
+Through initial BART model exploration, we decided to start with a BART model that was pretrained on both the XSUM and CNN/DM datasets. 
+This pretrained model already generated fluent summaries on our dataset without fine tuning. 
+
+We decied to compare generated summaries from the following three models and study their performances:
+\begin{enumerate}
+  \item Baseline: BART model pretrained on XSUM and CNN/DM without any fine tuning
+  \item BART Full: BART model fine tuned on our entire Reddit dataset irrespective of subreddit
+  \item BART Subreddit Split: Four separate BART models fine tuned on each of our four subreddit genre categories
+\end{enumerate}
+
 
 The input document was truncated to 1024 tokens and the length of the summary to 128 tokens. 
 
