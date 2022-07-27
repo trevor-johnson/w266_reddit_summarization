@@ -47,7 +47,7 @@ In addition, we test models trained on a specific genre against general models t
 
 Text summarization is important for faster consumption of articles and text, saving time, and still providing the reader with the gist of an article. Figuring out what is ‘important’ in text summarization is challenging because the answer is highly dependent on the domain of the text, the target audience, and the goal of the summary itself.
 
-Most summarization research is focused on new articles. However, as social media popularity increases, and in turn the generation of informal text, the need to summarize informal text will become more demanding.
+Most summarization research is focused on news articles. However, as social media popularity increases, and in turn the generation of informal text, the need to summarize informal text will become more demanding.
 
 With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017), a social media dataset, for our text summarization modeling. This dataset provides a summarization corpus from the domain of social media, consisting of 3 million reddit posts alongside so-called TL;DR summaries meaning "too long; didn't read".  These TL;DR summaries are written by social media posters writing long posts in anticipation of readers not having the patience to read an entire post. This gives us a text and summary written by the same person.
 
@@ -106,31 +106,41 @@ No models were trained and tested on specific subreddits or genres.
 
 \subsection{Exploratory Data Analysis}
 
-Before modeling, we performed exploratory data analysis to understand the reddit data. 
+Before modeling, we performed exploratory data analysis to better understand the reddit data. 
 The dataset consisted of 3.8 million observations, each containing the full reddit post, the "TLDR" or summary of the post, and the subreddit. 
-We counted the number of words in each reddit post and summary by splitting on white space. 
-The number of words in both the posts and summaries were heavily skewed right with average lengths of 278 and 27 respectively. 
-While there were some posts and summaries with over 1,000 words, most had word counts in a reasonable range with 90\% of the posts containing between 42 and 795 words, and 90\% of the summaries containing between 3 and 75 words. 
-Figure 1 shows histograms for the distribution of the distinct and total word counts for the reddit posts and summaries in our dataset. 
+First, we explored word counts in each reddit post and summary by splitting on white space. 
+Word counts were heavily skewed right in both the posts and summaries with average lengths of 278 and 27 respectively. 
+While there were some posts and summaries with well over 1,000 words, most had word counts in a much more digestable range. 
+90\% of the posts contained between 42 and 795 words, and 90\% of the summaries containing between 3 and 75 words. 
+Figure 1 (UPDATE) shows histograms for the distribution of the distinct and total word counts for the reddit posts and summaries in our dataset. 
+Studying these distributions helped us determine further hyperparameters when fitting models. 
 
 
 \begin{figure}
-  \includegraphics[width=\linewidth]{word_counts.png}
+  \includegraphics[width=\linewidth]{word_counts2.png}
   \caption{Word count distributions}
   \label{fig:word_counts}
 \end{figure}
 
-\subsection{Subreddit Genres}
+An initial investigation into the contents of the reddit posts and summaries showed that some contents nonsensically repeated 
+the same word over and over, or would be extremely lengthy (over 3,000 words). 
+With this in mind, we decided to filter down the dataset so it would only include reddit posts 
+with word totals between 20 - 1000 and $\geq$ 10 unique words. 
+In addition, each summary would only be between 2 - 100 total words and $\geq$ 2 unique words. 
+With these filters in place, about 300,000 records were removed from our dataset. 
 
-An initial investigation into the contents of the reddit posts and summaries showed that some contents nonsensically repeated the same word over and over, or would be extremely lengthy (over 3,000 words). With this in mind, we decided to filter down the dataset so it would only include reddit posts with word totals between 20 - 1000 and $\geq$ 10 unique words. In addition, each summary would only be between 2 - 100 total words and $\geq$ 2 unique words. With these filters in place, about 300,000 records were removed from our dataset. 
+
+\subsection{Subreddit Genres}
 
 Next, we explored the many subreddits in our dataset as we hoped to use this information to create segmented NLP models. 
 Because there were over 28,000 distinct subreddits in our dataset, it would be unreasonable to build separate NLP models for every distinct subreddit. 
-Thus, we sought to group these subreddits into categories based on genre. 
+Thus, we sought to group these subreddits into more general genre categories. 
+
+
 We considered creating a separate NLP model or use unsupervised learning techniques to systematically cluster the subreddits into similar categories, 
-but we ended up taking the time to group the subreddits into genres by hand and through regex keywords. 
+but doing so was outside of the scope of what we were seeking to learn. 
+Thus, we ended up grouping the subreddits into genres by hand, making sure to categorize the most popular subreddits. 
 In the end, we grouped the data into 4 distinct subreddit categories: gaming, advice/story, media/lifestyle/sports, and other. 
-Several posts clearly overlapped with several different genres, but we felt this was a simple approach to create good enough separations to train different NLP models on. 
 The counts for each subreddit genre can be found in figure 2. 
 
 \begin{table}
@@ -149,53 +159,125 @@ The counts for each subreddit genre can be found in figure 2.
 
 \subsection{Modeling}
 
-Sequence to sequence based transformer architectures have proven to achieve state of the art performance on the task of abstractive summarization (reference some paper in here: https://paperswithcode.com/task/text-summarization). 
-Aghajanyan et al (cite this paper properly: https://arxiv.org/pdf/2008.03156v1.pdf) have achieved state of the art performance on a similar but smaller Reddit dataset with the challenge of abstractive summarization. 
-This paper describes using a variation of the BART model to achieve state of the art performance of abstractive summarization on the Reddit TIFU subreddit. 
-Seeing as BART has proven to achieve strong results for abstractive summarization on similar datasets, we decided to focus our efforts on using this model for our Reddit summarization task. 
+Sequence to sequence based transformer architectures have proven to achieve state of the art performance on the task of abstractive summarization.
+In the original BART paper  (Lewis et al., 2019) (add link later: https://arxiv.org/pdf/1910.13461v1.pdf), the authors explain how BART performs 
+particularly well at text generation as well as for comprehension tasks. Additionally, recent research has shown that by providing 
+much more data to fine tune the BERT encoder, BART achieves state of the art performance on abstractive summarization tasks (Aghajanyan et al., 2020) (add link later: https://arxiv.org/pdf/2008.03156v1.pdf). 
+Because of this strong recent performance and through initial exploration ourselves, we decided to use BART to 
+generate abstractive summaries for our Reddit data. 
 
 After we began experimenting with training BART models on our dataset and generating summaries, we quickly realized the scale of our dataset would be a problem. 
-We frequently ran out of memory, or would exhaust compute times at our disposal. 
-Thus, we decided to downsample our large dataset to a more reasonable size for this project. 
-From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups leaving us with a total of 68,000 observations for our analysis. 
+We frequently ran out of memory, or would exhaust compute times at both training and inference times. 
+Thus, we decided to downsample our large dataset to a more reasonable scale for our project. 
+From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups providing us with a total of 68,000 observations for our analysis. 
 
-Through initial BART model exploration, we decided to start with a BART model that was pretrained on both the XSUM and CNN/DM datasets. 
-This pretrained model already generated fluent summaries on our dataset without fine tuning. 
+Through initial BART model exploration, we found that by using a BART model that was pretrained on both XSUM and CNN/DM datasets 
+provided fluent abstractive summaries of our data. Thus, we decided to fine tune this model further to produce more faithful 
+abstractive summaries. 
 
-We decied to compare generated summaries from the following three models and study their performances:
+Because the Reddit posts often had very different content in the subreddit genres we generated, we hypothesized that by training 
+separate BART models on each subreddit genre, we would maximize Rouge scores. Our analysis compares Rouge metrics from the following three models:
+
 \begin{enumerate}
-  \item Baseline: BART model pretrained on XSUM and CNN/DM without any fine tuning
-  \item BART Full: BART model fine tuned on our entire Reddit dataset irrespective of subreddit
-  \item BART Subreddit Split: Four separate BART models fine tuned on each of our four subreddit genre categories
+  \item BART Baseline: Pretrained on XSUM and CNN/DM without any fine tuning
+  \item BART Full: Fine tuned on our entire Reddit dataset irrespective of subreddit
+  \item BART Subreddit Split: Four separate models fine tuned on each of our four subreddit genre categories
 \end{enumerate}
 
+For each BART model, we tokenized the Reddit posts to a maximum of 1024 tokens, and the summaries to a maximum of 128 tokens. 
+Doing so would adequately tokenize the entire text for over 97\% of our data, and avoid overburdening our BART model with tokens being too long. 
 
-The input document was truncated to 1024 tokens and the length of the summary to 128 tokens. 
+The baseline BART model was used to generate summaries on our 4,000 test dataset observations without any fine tuning.
+We then trained a full BART model on our 60,000 observation training dataset irrespective of genre. 
+Finally, the subredit split BART models were each trained on 15,000 training observations specific to a subreddit genre. 
 
-We used a BART model that was pre-trained on the XSUM and CNN data sets. We then fine-tuned the model on 60k posts and summaries and tested on 4k posts and summaries. In addition, we also trained 4 'genre-specific' BART models that were only trained on posts related to the genre for that specific model. 
-
-We used ROUGE metrics to evaluate the model. We chose ROUGE because it is the most commonly used metic and we wanted to benchmark our model performance against models that were submitted from other papers. While evaluating the results from our model, we noticed that some summaries were not semantically accurate and we wanted to supplement our ROUGE metric with another metric to get a more a wholistic understanding of how our model was performing. In lieu of this, we decided to 'hand' grade x # of summaries and used these as the target summary to ensure the summaries were semantically accurate as well. 
-
-
-FIGURE OF AN EXAMPLE POST SHOWING A SUMMARY NOT DOING A GIVING A GREAT SUMMARY
 
 
 \section{Results and discussion}
 
+\subsection{Results}
+
+After the fine tuning was completed, we used each of our three BART modeling approaches to generate abstractive summaries on 
+our held out 4,000 test observations. Because over 90\% of our target summaries were shorter than 60 words, we decided to 
+restrict our BART models to generate summaries with a maximum of 60 words. 
+
+Our primary metric for evaluation was Rouge. 
+Not only is Rouge the primary metric used to measure performance in related research, but the recall based approach 
+was fitting for our analysis. Our 60 word maximum restriction provided a guardrail against the model having a terribly low precision, 
+and we hoped our summaries would adequately use the same words found in the target summaries. 
+Thus Rouge score felt appropriate to evaluate performance.
+The resulting rouge scores for each modeling performance can be found in table X (UPDATE LATER).
+
 \begin{table}
-\centering
-\begin{tabular}{lrlll}
-\hline \textbf{Model} & \textbf{R-1} & \textbf{R-2} & \textbf{R-L} & \textbf{Gen Len} \\ \hline
-BART & x & x & x & x \\
-unified-pgn* & 19 & 4 & 15 & x \\
-unified-vae-pgn* & 19 & 4 & 15 & x \\
-transf-seq2seq* & 19 & 5 & 14 & x \\
-pseudo-self-attn* & 18 & 4 & 13 & x \\
-tldr-bottom-up* & 20 & 4  & 15 & x\\
-\hline
-\end{tabular}
-\caption{\label{font-table} ROUGE-1,2, and L scores for the generated summaries and average word length}
+  \centering
+  \begin{tabular}{lrlll}
+  \hline \textbf{Test Set and Model} & \textbf{R-1} & \textbf{R-2} & \textbf{R-L} \\ \hline
+
+  \multicolumn{4}{ l }{\emph{Genre: Advice/Story}} \\
+  BART Baseline & 16.8 & 2.5 & 13.5 \\
+  BART Full & 20.2 & 5.9 & 16.7 \\
+  BART Subreddit Split & 20.0 & 5.7 & 16.4 \\
+  \hline
+  \multicolumn{4}{ l }{\emph{Genre: Media/Lifestyle/Sports}} \\
+  BART Baseline & 14.8 & 2.1 & 12.1 \\
+  BART Full & 14.3 & 3.5 & 12.2 \\
+  BART Subreddit Split & 14.0 & 3.1 & 11.8 \\
+  \hline
+  \multicolumn{4}{ l }{\emph{Genre: Gaming}} \\
+  BART Baseline & 15.3 & 1.9 & 12.0 \\
+  BART Full & 16.5 & 4.1 & 13.5 \\
+  BART Subreddit Split & 15.5 & 3.7 & 12.7 \\
+  \hline
+  \multicolumn{4}{ l }{\emph{Genre: Other}} \\
+  BART Baseline & 14.9 & 2.0 & 12.1 \\
+  BART Full & 16.6 & 4.0 & 13.9 \\
+  BART Subreddit Split & 16.8 & 4.3 & 14.1 \\
+  \hline
+
+  \end{tabular}
+  \caption{\label{font-table} ROUGE-1,2, and L scores for the generated summaries}
 \end{table}
+
+According to Rouge metrics, the full BART model generally outperformed the others. 
+A key learning for us here is that in the case of our Reddit subset dataset, 
+fine tuning on more data seems to be better than fine tuning on more specialized less data. 
+
+\subsection{Error Analysis}
+
+Next, we dug into the observations that had the lowest Rouge scores at inference time to study where our models went wrong. 
+We were surprised to find that quite often, we felt our BART models produced TLDR summaries that were even better than the true target summaries. 
+It seems the summaries that users generated were sometimes trying to be funny, or didn't actually summarize the content too well. 
+Whereas our BART models seemed to do a better job. As an example, one post was a long story about a user's addiction to cannabis and his desire to 
+abstain from smoking for a month. 
+We've pasted the summaries below to show how we feel the BART summary does a better job summarizing the true and complete content.
+
+\begin{itemize}
+  \item True summary: Stay sober through October.
+  \item BART Full summary: I'm taking a month off from smoking weed to prove to myself that it's not an issue.
+\end{itemize}
+
+
+On the other hand, there were some situations where our BART model clearly couldn't summarize the content very well. 
+Sometimes the BART models would just return the first few words of the content and call that the summary. 
+
+(FIND BAD EXAMPLE)
+
+\subsection{Manual Summary Analysis}
+
+Finally, as an additional benchmark for our models, we decided to manually generate summaries ourselves. 
+We wrote 100 summaries, with 25 in each subreddit genre, and computed Rouge scores on them for comparison. 
+While we recognize the small sample size results may not exactly extrapolate to the entire dataset, 
+it gives a (idk rephrase later).
+To keep the table simple, we've only compared the manual summaries to the full BART model below:
+
+(UPDATE LATER)
+
+Overall, it seems our manually generated summaries outperform the automatic BART models by several points. 
+However, while generating the summaries, we found it particularly difficult to summarize the gamming subreddits. 
+These posts often contains a lot of jargon that we didn't understand. 
+The results above show that the BART model actually outperformed our manually generated summaries for this subreddit genre. 
+
+
 
 \section{Conclusion}
 
