@@ -15,13 +15,14 @@
 \usepackage{graphicx}
 \renewcommand{\UrlFont}{\ttfamily\small}
 \usepackage[nomarkers,nolists]{endfloat}
+\usepackage{tabu}
 
 \usepackage{microtype}
 
 
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{Genre Specific Models for Social Media Summarization}
+\title{Testing Genre Specific Models for Social Media Summarization}
 
 \author{Trevor Johnson \\
   UC Berkeley  \\
@@ -53,7 +54,7 @@ With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017), a so
 
 In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' ('advice/story', 'gaming', 'media/lifestyle/sports' and 'other') and an overall model trained on all genres to evaluate whether a genre specific model can outperform a general model. To categorize the observations into different genres we used the subreddit \footnote{Subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the 'genre' of the post. We feel the usefulness for understanding the importance of a genre specific model could potentially extend beyond social media and be helpful in text summarization in many other domains including news articles.
 
-We evaluate the model performance by using ROUGE (Lin, 2004) metrics and comparing the model to human manually evaluated submissions.
+We evaluate the model performance by using ROUGE (Lin, 2004) metrics and comparing the model to human generated summaries.
 
 \begin{table}
 \centering
@@ -71,12 +72,32 @@ Other & 15,000/1,000/1,000 & 5 & 14 \\
 test set, and average post and summary word length}
 \end{table}
 
+\begin{table}
+\centering
+\begin{tabu} to \textwidth {lX[r]X[l]X[l]}
+\hline \textbf{Dataset} & \textbf{# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
+%\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
+Overall & x & x & x \\
+Advice/Story & 15,000/1,000/1,000 & x & x \\
+Gaming & 15,000/1,000/1,000 & 4 & 15 \\
+Media/Lifestyle/Sports & 15,000/1,000/1,000 & 4 & 15 \\
+Other & 15,000/1,000/1,000 & 5 & 14 \\
+\hline
+\end{tabu}
+\caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
+test set, and average post and summary word length}
+\end{table}
+
+
 \section{Background}
 \label{sec:length}
 
-In 2018, a tldr challenge (Syed et al., 2018) was organized where participants submitted a model to do abstractive summarization on the Webis-TLDR-17 corpus dataset. 5 model submissions were evaluated. They found both transf-seq2seq and pseudo-self-attn models generated the highest-quality text, but especially the latter often lacked information. The main metric they used to evaluate the models was ROUGE. 
+In 2018, a tldr challenge (Syed et al., 2018) was organized where participants submitted a model to do abstractive summarization on the Webis-TLDR-17 corpus dataset. 5 model submissions were evaluated. They found both transf-seq2seq and pseudo-self-attn models generated the highest-quality text, but especially the latter often lacked information (REWORD). The main metric they used to evaluate the models was ROUGE. 
 
-More recently, it has been shown a BART-based model works best for the Reddit dataset (Chen, 2020). Chen found that the BART model performed well on this abstractive dataset because of its ability to significantly generate factual summaries over other models. Given this, we wanted to test out a BART model combined with genre specific training data to see if we could record even better results.
+More recently, it has been shown a BART-based model works best for the Reddit dataset (Chen, 2020). Chen found that the BART model performed well on this abstractive dataset because of its ability to generate factual summaries over other models. Given this, we wanted to test a BART model combined with genre specific training data to see if we could record even better results.
+
+
+
 
 \\
 
@@ -258,7 +279,7 @@ The results above show that the BART model actually outperformed our manually ge
 
 
 \section{Conclusion}
-We show the full BART model trained on more data seems to out perform a model trained on a more specialized dataset with less data. 
+We show a BART model trained on more data outperforms a model trained on a more specialized dataset with less data. 
 
 Preliminary experiments showed when comparing the BART model's performance to a human generated summary, a human generated summary tended to receive a higher ROUGE score. 
 
