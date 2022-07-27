@@ -9,7 +9,7 @@
 
 %\documentclass{article}
 \documentclass[11pt,a4paper, twocolumn]{article}
-%\usepackage[hyperref]{eacl2021}
+\usepackage[hyperref]{eacl2021}
 \usepackage{times}
 \usepackage{latexsym}
 \usepackage{graphicx}
@@ -58,14 +58,14 @@ We evaluate the model performance by using ROUGE (Lin, 2004) metrics and compari
 
 \begin{table}
 \centering
-\begin{tabular}{lrll}
+\begin{tabular}{lccc}
 \hline \textbf{Dataset} & \textbf{# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
 %\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
-Overall & x & x & x \\
-Advice/Story & 15,000/1,000/1,000 & x & x \\
-Gaming & 15,000/1,000/1,000 & 4 & 15 \\
-Media/Lifestyle/Sports & 15,000/1,000/1,000 & 4 & 15 \\
-Other & 15,000/1,000/1,000 & 5 & 14 \\
+Overall & 60,000/4,000/4,000  & 235 & 22 \\
+Advice/Story & 15,000/1,000/1,000 & 278 & 23 \\
+Gaming & 15,000/1,000/1,000 & 211 & 23 \\
+Media/Lifestyle/Sports & 15,000/1,000/1,000 & 210 & 21 \\
+Other & 15,000/1,000/1,000 & 240 & 23 \\
 \hline
 \end{tabular}
 \caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
@@ -74,14 +74,14 @@ test set, and average post and summary word length}
 
 \begin{table}
 \centering
-\begin{tabu} to \textwidth {lX[r]X[l]X[l]}
+\begin{tabu} to \textwidth {lX[l]X[c]X[c]X[c]}
 \hline \textbf{Dataset} & \textbf{# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
 %\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
-Overall & x & x & x \\
-Advice/Story & 15,000/1,000/1,000 & x & x \\
-Gaming & 15,000/1,000/1,000 & 4 & 15 \\
-Media/Lifestyle/Sports & 15,000/1,000/1,000 & 4 & 15 \\
-Other & 15,000/1,000/1,000 & 5 & 14 \\
+Overall & 60,000/4,000/4,000  & 235 & 22 \\
+Advice/Story & 15,000/1,000/1,000 & 278 & 23 \\
+Gaming & 15,000/1,000/1,000 & 211 & 23 \\
+Media/Lifestyle/Sports & 15,000/1,000/1,000 & 210 & 21 \\
+Other & 15,000/1,000/1,000 & 240 & 23 \\
 \hline
 \end{tabu}
 \caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
