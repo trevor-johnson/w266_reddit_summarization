@@ -9,13 +9,13 @@
 
 %\documentclass{article}
 \documentclass[11pt,a4paper, twocolumn]{article}
-\usepackage[hyperref]{eacl2021}
+%\usepackage[hyperref]{eacl2021}
 \usepackage{times}
 \usepackage{latexsym}
 \usepackage{graphicx}
 \renewcommand{\UrlFont}{\ttfamily\small}
-\usepackage[nomarkers,nolists]{endfloat}
-\usepackage{tabu}
+%\usepackage[nomarkers,nolists]{endfloat}
+%\usepackage{tabu}
 
 \usepackage{microtype}
 
@@ -56,37 +56,6 @@ In addition, we wanted to explore the significance of understanding the genre of
 
 We evaluate the model performance by using ROUGE (Lin, 2004) metrics and comparing the model to human generated summaries.
 
-\begin{table}
-\centering
-\begin{tabular}{lccc}
-\hline \textbf{Dataset} & \textbf{# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
-%\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
-Overall & 60,000/4,000/4,000  & 235 & 22 \\
-Advice/Story & 15,000/1,000/1,000 & 278 & 23 \\
-Gaming & 15,000/1,000/1,000 & 211 & 23 \\
-Media/Lifestyle/Sports & 15,000/1,000/1,000 & 210 & 21 \\
-Other & 15,000/1,000/1,000 & 240 & 23 \\
-\hline
-\end{tabular}
-\caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
-test set, and average post and summary word length}
-\end{table}
-
-\begin{table}
-\centering
-\begin{tabu} to \textwidth {lX[l]X[c]X[c]X[c]}
-\hline \textbf{Dataset} & \textbf{# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
-%\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
-Overall & 60,000/4,000/4,000  & 235 & 22 \\
-Advice/Story & 15,000/1,000/1,000 & 278 & 23 \\
-Gaming & 15,000/1,000/1,000 & 211 & 23 \\
-Media/Lifestyle/Sports & 15,000/1,000/1,000 & 210 & 21 \\
-Other & 15,000/1,000/1,000 & 240 & 23 \\
-\hline
-\end{tabu}
-\caption{\label{font-table} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
-test set, and average post and summary word length}
-\end{table}
 
 
 \section{Background}
@@ -99,7 +68,7 @@ More recently, it has been shown a BART-based model works best for the Reddit da
 
 
 
-\\
+
 
 \section{Methods and Data}
 
@@ -111,17 +80,19 @@ First, we explored word counts in each reddit post and summary by splitting on w
 Word counts were heavily skewed right in both the posts and summaries with average lengths of 278 and 27 respectively. 
 While there were some posts and summaries with well over 1,000 words, most had word counts in a much more digestable range. 
 90\% of the posts contained between 42 and 795 words, and 90\% of the summaries containing between 3 and 75 words. 
-Figure 1 (UPDATE) shows histograms for the distribution of the distinct and total word counts for the reddit posts and summaries in our dataset. 
+Figure 1 shows histograms for the distribution of the distinct and total word counts for the reddit posts and summaries in our dataset. 
 Studying these distributions helped us determine further hyperparameters when fitting models. 
 
 
-\begin{figure}
-  \includegraphics[width=\linewidth]{word_counts2.png}
+
+\begin{figure}[h]
+  \includegraphics[width=.95\linewidth]{word_counts2.png}
   \caption{Word count distributions}
   \label{fig:word_counts}
 \end{figure}
 
-An initial investigation into the contents of the reddit posts and summaries showed that some contents nonsensically repeated 
+
+An initial investigation into the contents of the reddit posts and summaries showed that some contents nonsensically repeated
 the same word over and over, or would be extremely lengthy (over 3,000 words). 
 With this in mind, we decided to filter down the dataset so it would only include reddit posts 
 with word totals between 20 - 1000 and $\geq$ 10 unique words. 
@@ -140,9 +111,9 @@ We considered creating a separate NLP model or use unsupervised learning techniq
 but doing so was outside of the scope of what we were seeking to learn. 
 Thus, we ended up grouping the subreddits into genres by hand, making sure to categorize the most popular subreddits. 
 In the end, we grouped the data into 4 distinct subreddit categories: gaming, advice/story, media/lifestyle/sports, and other. 
-The counts for each subreddit genre can be found in figure 2. 
+The counts for each subreddit genre can be found in table 1.
 
-\begin{table}
+\begin{table}[h]
   \centering
   \begin{tabular}{lrlll}
   \hline \textbf{Subreddit Genre} & \textbf{Post Count}\\ \hline
@@ -152,23 +123,40 @@ The counts for each subreddit genre can be found in figure 2.
   Other & 1184045 \\
   \hline
   \end{tabular}
-  \caption{\label{font-table} Subreddit Genres}
+  \caption{\label{font-table3} Subreddit Genres}
 \end{table}
 
 
 \subsection{Modeling}
 
 Sequence to sequence based transformer architectures have proven to achieve state of the art performance on the task of abstractive summarization.
-In the original BART paper  (Lewis et al., 2019) (add link later: https://arxiv.org/pdf/1910.13461v1.pdf), the authors explain how BART performs 
-particularly well at text generation as well as for comprehension tasks. Additionally, recent research has shown that by providing 
-much more data to fine tune the BERT encoder, BART achieves state of the art performance on abstractive summarization tasks (Aghajanyan et al., 2020) (add link later: https://arxiv.org/pdf/2008.03156v1.pdf). 
-Because of this strong recent performance and through initial exploration ourselves, we decided to use BART to 
-generate abstractive summaries for our Reddit data. 
+In the original BART paper, the authors explain how BART performs particularly well at text generation as well as for comprehension tasks (Lewis et al., 2019). 
+Additionally, recent research has shown that by providing much more data to fine tune the BERT encoder, 
+BART achieves state of the art performance on abstractive summarization tasks (Aghajanyan et al., 2020). 
+Because of this strong recent performance and through initial exploration ourselves, 
+we decided to use BART to generate abstractive summaries for our Reddit data. 
 
 After we began experimenting with training BART models on our dataset and generating summaries, we quickly realized the scale of our dataset would be a problem. 
 We frequently ran out of memory, or would exhaust compute times at both training and inference times. 
 Thus, we decided to downsample our large dataset to a more reasonable scale for our project. 
 From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups providing us with a total of 68,000 observations for our analysis. 
+Table 2 shows the final observations counts we used in our analysis in each respective subreddit genre, including average word counts. 
+
+\begin{table*}
+  \centering
+  \begin{tabular}{lccc}
+  \hline \textbf{Dataset} & \textbf{\# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
+  %\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
+  Overall & 60,000/4,000/4,000  & 235 & 22 \\
+  Advice/Story & 15,000/1,000/1,000 & 278 & 23 \\
+  Gaming & 15,000/1,000/1,000 & 211 & 23 \\
+  Media/Lifestyle/Sports & 15,000/1,000/1,000 & 210 & 21 \\
+  Other & 15,000/1,000/1,000 & 240 & 23 \\
+  \hline
+  \end{tabular}
+  \caption{\label{final_counts} Comparison of summarization datasets with respect to overall corpus size, size of training, validation, and
+  test set, and average post and summary word length}
+\end{table*}
 
 Through initial BART model exploration, we found that by using a BART model that was pretrained on both XSUM and CNN/DM datasets 
 provided fluent abstractive summaries of our data. Thus, we decided to fine tune this model further to produce more faithful 
@@ -205,9 +193,9 @@ Not only is Rouge the primary metric used to measure performance in related rese
 was fitting for our analysis. Our 60 word maximum restriction provided a guardrail against the model having a terribly low precision, 
 and we hoped our summaries would adequately use the same words found in the target summaries. 
 Thus Rouge score felt appropriate to evaluate performance.
-The resulting rouge scores for each modeling performance can be found in table X (UPDATE LATER).
+The resulting rouge scores for each modeling performance can be found in table 3.
 
-\begin{table}
+\begin{table}[h]
   \centering
   \begin{tabular}{lrlll}
   \hline \textbf{Test Set and Model} & \textbf{R-1} & \textbf{R-2} & \textbf{R-L} \\ \hline
@@ -234,7 +222,7 @@ The resulting rouge scores for each modeling performance can be found in table X
   \hline
 
   \end{tabular}
-  \caption{\label{font-table} ROUGE-1,2, and L scores for the generated summaries}
+  \caption{\label{font-table4} ROUGE-1,2, and L scores for the generated summaries}
 \end{table}
 
 According to Rouge metrics, the full BART model generally outperformed the others. 
