@@ -1,5 +1,4 @@
-# w266_reddit_summarization
-Reddit TLDR Abstractive Summarization Model
+# Reddit TLDR Abstractive Summarization Model
 
 We present a method to produce abstractive summaries of informal social media text via neural abstractive summarization. 
 We test a model that has achieved state-of-the-art text summarization performance in the news domain and evaluate its performance in the social media domain.
