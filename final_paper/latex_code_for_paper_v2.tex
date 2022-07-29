@@ -185,14 +185,6 @@ Not only is ROUGE the primary metric used to measure performance in related rese
 but the recall based approach was fitting for our analysis because we were most interested in having our summaries adequately capture the important words in the summary. 
 Additionally, our 60 word maximum restriction provided a guardrail against the model having a terribly low precision.
 
-To benchmark our model performance, we found the results of other researchers who explored the same Reddit dataset (Syed et al. 2018). 
-The researchers report several summarization models they used in their research with a model they call "tldr-bottom-up" having the highest ROUGE score. 
-The report does not provide a description of the nature of their "tldr-bottom-up" model. 
-Because we used a much smaller sample of the dataset, the results aren't exactly comparable, 
-but it provides a reference point to judge our model's performance. 
-
-The resulting ROUGE scores for each of our BART models, as well as the performance from Syed et al., can be found in table 3.
-
 \begin{table}[h]
   \centering
   \begin{tabular}{lrlll}
