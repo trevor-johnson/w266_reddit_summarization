@@ -74,14 +74,14 @@ More recently, it has been shown a BART-based model works best for the Reddit da
 
 \subsection{Exploratory Data Analysis}
 
-Before modeling, we performed exploratory data analysis to better understand the reddit data. 
-The dataset consisted of 3.8 million observations, each containing the full reddit post, summary, and subreddit. 
-First, we explored word counts in each reddit post and summary by splitting on white space. 
+Before modeling, we performed exploratory data analysis to better understand the Reddit data. 
+The dataset consisted of 3.8 million observations, each containing the full Reddit post, summary, and subreddit. 
+First, we explored word counts in each post and summary by splitting on white space. 
 Word counts were heavily skewed right in both the posts and summaries with average word counts of 278 and 27 respectively. 
 A small number of posts and summaries had as few as 1-2 words words or over 1,000 words. 
 But the majority of observations had word counts in a reasonable range with 90\% of the posts containing between 42 and 795 words
 and 90\% of the summaries containing between 3 and 75 words. 
-Figure 1 shows histograms to visualize the distributions of the total word counts for the reddit posts and summaries in our dataset. 
+Figure 1 shows histograms to visualize the distributions of the total word counts for the Reddit posts and summaries in our dataset. 
 Studying these distributions helped us determine further hyperparameters when fitting models.
 
 \begin{figure}[h]
@@ -126,10 +126,10 @@ The counts for each subreddit genre can be found in table 1.
 
 \subsection{Modeling}
 
-Sequence to sequence based transformer architectures have proven to achieve state of the art performance on the task of abstractive summarization.
+Sequence to sequence based transformer architectures have proven to achieve state-of-the-art performance on the task of abstractive summarization.
 In the original BART paper, the authors explain how BART performs particularly well at text generation as well as for comprehension tasks (Lewis et al., 2019). 
 Additionally, recent research has shown that by providing much more data to fine tune the BERT encoder, 
-BART achieves state of the art performance on abstractive summarization tasks (Aghajanyan et al., 2020). 
+BART achieves state-of-the-art performance on abstractive summarization tasks (Aghajanyan et al., 2020). 
 
 We also explored using Pegasus to generate our summaries. 
 Without fine tuning, both Pegasus and BART generated fluent abstractive summaries on our training data. 
@@ -139,7 +139,8 @@ In particular, we used a BART model that was pretrained on both XSUM and CNN/DM 
 After we began training BART models on our dataset and generating summaries, we quickly realized that the scale of our dataset would be a problem. 
 We frequently ran out of memory, or would exhaust compute times during training and inference. 
 Thus, we decided to downsample our large dataset to a more reasonable scale for our project. 
-From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups providing us with a total of 68,000 observations for our analysis. 
+From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups,
+of which 1,000 would be used for validation and 1,000 would be used for testing. 
 Table 2 shows the final observations counts we used in our analysis in each respective subreddit genre, including average word counts. 
 
 \begin{table*}
@@ -158,11 +159,11 @@ Table 2 shows the final observations counts we used in our analysis in each resp
   test set, and average post and summary word length}
 \end{table*}
 
-Because the Reddit posts often had very different content in the subreddit genres we generated, 
-we hypothesized that by training separate BART models on each subreddit genre, we would maximize Rouge scores. 
-Thus, we trained four separate BART models on each of the 15,000 training observations in each subreddit genre. 
+Because the Reddit posts had different content in the subreddit genres, 
+we hypothesized that we could maximize ROUGE score by training separate BART models on each genre.
+Thus, we trained four independent BART models on each of the 15,000 training observations in each subreddit genre. 
 Then separately, we trained a full BART model on all of our 60,000 training observations to compare performance. 
-Our analysis compares Rouge metrics from the following three models:
+Our analysis compares ROUGE scores from the following three models:
 
 \begin{enumerate}
   \item BART Baseline: Pretrained on XSUM and CNN/DM without any fine tuning
@@ -184,18 +185,18 @@ After the fine tuning was completed, we used each of our three BART modeling app
 our held out 4,000 test observations. Because over 90\% of our target summaries were shorter than 60 words, we decided to 
 restrict our BART models to generate summaries with a maximum of 60 words. 
 
-Our primary metric for evaluation was Rouge. 
-Not only is Rouge the primary metric used to measure performance in related research, 
+Our primary metric for evaluation was ROUGE. 
+Not only is ROUGE the primary metric used to measure performance in related research, 
 but the recall based approach was fitting for our analysis because we were most interested in having our summaries adequately capture the important words in the summary. 
 Additionally, our 60 word maximum restriction provided a guardrail against the model having a terribly low precision.
 
 To benchmark our model performance, we found the results of other researchers who explored the same Reddit dataset (Syed et al. 2018). 
-The researchers report several summarization models they used in their research with a model they call "tldr-bottom-up" having the highest rouge score. 
+The researchers report several summarization models they used in their research with a model they call "tldr-bottom-up" having the highest ROUGE score. 
 The report does not provide a description of the nature of their "tldr-bottom-up" model. 
 Because we used a much smaller sample of the dataset, the results aren't exactly comparable, 
 but it provides a reference point to judge our model's performance. 
 
-The resulting rouge scores for each of our BART models, as well as the performance from Syed et al., can be found in table 3.
+The resulting ROUGE scores for each of our BART models, as well as the performance from Syed et al., can be found in table 3.
 
 \begin{table}[h]
   \centering
@@ -204,23 +205,26 @@ The resulting rouge scores for each of our BART models, as well as the performan
 
   \multicolumn{4}{ l }{\emph{Genre: Advice/Story}} \\
   BART Baseline & 16.8 & 2.5 & 13.5 \\
-  BART Full & 20.2 & 5.9 & 16.7 \\
+  BART Full & \textbf{20.2} & \textbf{5.9} & \textbf{16.7} \\
   BART Subreddit Split & 20.0 & 5.7 & 16.4 \\
   \hline
-  \multicolumn{4}{ l }{\emph{Genre: Media/Lifestyle/Sports}} \\
-  BART Baseline & 14.8 & 2.1 & 12.1 \\
-  BART Full & 14.3 & 3.5 & 12.2 \\
-  BART Subreddit Split & 14.0 & 3.1 & 11.8 \\
-  \hline
+  
   \multicolumn{4}{ l }{\emph{Genre: Gaming}} \\
   BART Baseline & 15.3 & 1.9 & 12.0 \\
-  BART Full & 16.5 & 4.1 & 13.5 \\
+  BART Full & \textbf{16.5} & \textbf{4.1} & \textbf{13.5} \\
   BART Subreddit Split & 15.5 & 3.7 & 12.7 \\
   \hline
+
+  \multicolumn{4}{ l }{\emph{Genre: Media/Lifestyle/Sports}} \\
+  BART Baseline & \textbf{14.8} & 2.1 & 12.1 \\
+  BART Full & 14.3 & \textbf{3.5} & \textbf{12.2} \\
+  BART Subreddit Split & 14.0 & 3.1 & 11.8 \\
+  \hline
+
   \multicolumn{4}{ l }{\emph{Genre: Other}} \\
   BART Baseline & 14.9 & 2.0 & 12.1 \\
   BART Full & 16.6 & 4.0 & 13.9 \\
-  BART Subreddit Split & 16.8 & 4.3 & 14.1 \\
+  BART Subreddit Split & \textbf{16.8} & \textbf{4.3} & \textbf{14.1} \\
   \hline
 
   \multicolumn{4}{ l }{\emph{Benchmark (Syed et al.)}} \\
@@ -231,20 +235,20 @@ The resulting rouge scores for each of our BART models, as well as the performan
   \caption{\label{test_performance} ROUGE-1,2, and L scores for the generated summaries}
 \end{table}
 
-According to Rouge metrics, the full BART model generally outperformed the others. 
-In terms of Rouge-1, the benchmark "tldr-bottom-up" model generally performs best. 
-But our BART Full model often has the highest Rouge-2 and Rouge-L scores. 
+According to ROUGE metrics, the full BART model generally outperformed the others. 
+In terms of ROUGE-1, the benchmark "tldr-bottom-up" model generally performs best. 
+But our BART Full model often has the highest ROUGE-2 and ROUGE-L scores. 
 A key learning for us here is that in the case of our Reddit subset dataset, 
-fine tuning on more data seems to be better than fine tuning on more specialized less data. 
+fine tuning on more data seems to be better than fine tuning on more specialized but less data. 
 
 \subsection{Error Analysis}
 
-Next, we dug into the observations that had the lowest Rouge scores at inference time to study where our models went wrong. 
-We were surprised to find that quite often, we felt our BART models produced TLDR summaries that were even better than the true target summaries. 
+Next, we dug into the observations that had the lowest ROUGE scores at inference time to study where our models went wrong. 
+We were surprised to find that quite often, we felt our BART models produced TL;DR summaries that were even better than the true target summaries. 
 It seems the true user-created summaries were sometimes trying to be funny or didn't actually summarize the content faithfully. 
 Whereas our BART models seemed to do a better job in these cases. 
 As an example, one post was a long story about a user's addiction to cannabis and his desire to abstain from smoking for a month. 
-We've pasted the summaries below to show how we feel the BART summary does a better job at providing a fluent and faithful summary than the true summary. 
+We've pasted the summaries below to show how we feel the BART summary does a better job at providing a more fluent and faithful summary than the true summary. 
 
 \begin{itemize}
   \item True summary: Stay sober through October.
@@ -253,13 +257,13 @@ We've pasted the summaries below to show how we feel the BART summary does a bet
 
 On the other hand, there were some situations where our BART model clearly couldn't summarize the content very well. 
 Sometimes the BART models would just return the first few words of the content as its summary. 
-Other times the BART model would regurgitate important words from the content, but didn't actually provide a sensical summary. 
-We hypothesize that our BART model might perform better in some of these situations if we had more computing power to train the model on more observations. 
+Other times the BART models would regurgitate important words from the content, but didn't actually provide a sensical summary. 
+We hypothesize that our BART models might perform better in some of these situations if we had more computing power to train the model on more observations. 
 
 \subsection{Manual Summary Analysis}
 
 Finally, as an additional benchmark for our models, we decided to manually generate summaries ourselves. 
-We wrote 100 summaries, with 25 in each subreddit genre, and computed Rouge scores on them for comparison. 
+We wrote 100 summaries, with 25 in each subreddit genre, and computed ROUGE scores on them for comparison. 
 While we recognize the small sample size we are using could be a noisy estimate of the total dataset, 
 this gives an interesting benchmark and insight into how well we'd hope our BART model could perform.
 For simplicity, we only compare the full BART model metrics to our manual summaries in table 4. 
@@ -273,14 +277,17 @@ For simplicity, we only compare the full BART model metrics to our manual summar
   BART Full & 24.9 & 7.8 & 20.2 \\
   Manual Summary & 26.4 & 11.3 & 22.7 \\
   \hline
-  \multicolumn{4}{ l }{\emph{Genre: Media/Lifestyle/Sports}} \\
-  BART Full & 13.1 & 1.2 & 11.1 \\
-  Manual Summary & 17.9 & 3.3 & 14.8 \\
-  \hline
+  
   \multicolumn{4}{ l }{\emph{Genre: Gaming}} \\
   BART Full & 19.6 & 7.7 & 17.8 \\
   Manual Summary & 19.5 & 4.8 & 15.5 \\
   \hline
+
+  \multicolumn{4}{ l }{\emph{Genre: Media/Lifestyle/Sports}} \\
+  BART Full & 13.1 & 1.2 & 11.1 \\
+  Manual Summary & 17.9 & 3.3 & 14.8 \\
+  \hline
+
   \multicolumn{4}{ l }{\emph{Genre: Other}} \\
   BART Full & 13.0 & 4.5 & 11.8 \\
   Manual Summary & 21.1 & 6.1 & 17.3 \\
@@ -290,9 +297,9 @@ For simplicity, we only compare the full BART model metrics to our manual summar
   \caption{\label{manual_summary} Manual Summary Comparisons}
 \end{table}
 
-In most cases, our manually generated summaries outperform the BART model by several Rouge points. 
+In most cases, our manually generated summaries outperform the BART model by several ROUGE points. 
 However, while manually generating the summaries, we found it particularly difficult to summarize the gamming subreddits because they often contained a lot of jargon that we didn't understand. 
-We were interested to see that the BART model actually outperformed our manually generated summaries for the gaming subreddit genre. 
+It was interesting to us that the BART model actually outperformed our manually generated summaries for the gaming subreddit genre. 
 
 \section{Conclusion}
 We show a BART model trained on more data outperforms a model trained on a more specialized dataset with less data. 
