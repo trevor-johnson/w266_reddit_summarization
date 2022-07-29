@@ -73,11 +73,11 @@ Before modeling, we performed exploratory data analysis to better understand the
 The dataset consisted of 3.8 million observations, each containing the full Reddit post, summary, and subreddit. 
 First, we explored word counts in each post and summary by splitting on white space. 
 Word counts were heavily skewed right in both the posts and summaries with average word counts of 278 and 27 respectively. 
-A small number of posts and summaries had as few as 1-2 words words or over 1,000 words. 
+A small number of posts and summaries had as few as 1-2 words words, or in other cases, over 1,000 words. 
 But the majority of observations had word counts in a reasonable range with 90\% of the posts containing between 42 and 795 words
 and 90\% of the summaries containing between 3 and 75 words. 
 Figure 1 shows histograms to visualize the distributions of the total word counts for the Reddit posts and summaries in our dataset. 
-Studying these distributions helped us determine further hyperparameters when fitting models.
+Studying these distributions helped us determine hyperparameters when fitting models.
 
 \begin{figure}[h]
   \includegraphics[width=.95\linewidth]{word_counts.png}
@@ -88,9 +88,9 @@ Studying these distributions helped us determine further hyperparameters when fi
 
 Next, we looked into individual observations in the data to understand the data on a more granular level. 
 Some Reddit posts and summaries would nonsensically repeat the same word over and over, or just contain one word. 
-With this in mind, we decided to filter down the dataset so it would only include posts with word counts between 20 - 1000 and with at least 10 unique words. 
-In addition, each summary would only include between 2 - 100 total words and at least 2 unique words. 
-With these filters in place, about 300,000 records were removed from our dataset and we were able to deal with higher quality data. 
+With this in mind, we decided to filter down the dataset so it would only include posts with between 20 - 1000 total words and with at least 10 unique words. 
+Additionally, each summary would only include between 2 - 100 total words and at least 2 unique words. 
+With these filters in place, about 300,000 records were removed from our dataset and we were able to deal with what we determined to be higher quality data. 
 
 \subsection{Subreddit Genres}
 
@@ -115,7 +115,7 @@ The counts for each subreddit genre can be found in table 1.
   Other & 1184045 \\
   \hline
   \end{tabular}
-  \caption{\label{subreddit_counts} Subreddit Genres}
+  \caption{\label{subreddit_counts} Subreddit genre counts}
 \end{table}
 
 
@@ -131,12 +131,12 @@ Without fine tuning, both Pegasus and BART generated fluent abstractive summarie
 Because of BART's strong performance in related research and the ease of use, we decided BART would be a good fit to fine tune on our Reddit data. 
 In particular, we used a BART model that was pretrained on both XSUM and CNN/DM datasets because it provided fluent summaries on our data without initial fine tuning. 
 
-After we began training BART models on our dataset and generating summaries, we quickly realized that the scale of our dataset would be a problem. 
-We frequently ran out of memory, or would exhaust compute times during training and inference. 
+When we began training BART models on our dataset and generating summaries, we quickly realized that the scale of our dataset would be a problem. 
+We frequently ran out of memory or would exhaust compute times during training and inference. 
 Thus, we decided to downsample our large dataset to a more reasonable scale for our project. 
 From our cleaned dataset, we randomly sampled 17,000 observations from each of our 4 subreddit groups,
 of which 1,000 would be used for validation and 1,000 would be used for testing. 
-Table 2 shows the final observations counts we used in our analysis in each respective subreddit genre, including average word counts. 
+Table 2 shows total observation counts and average word lengths in each of the subreddit genres used in our analysis. 
 
 \begin{table*}
   \centering
@@ -157,7 +157,7 @@ Table 2 shows the final observations counts we used in our analysis in each resp
 Because the Reddit posts had different content in the subreddit genres, 
 we hypothesized that we could maximize ROUGE score by training separate BART models on each genre.
 Thus, we trained four independent BART models on each of the 15,000 training observations in each subreddit genre. 
-Then separately, we trained a full BART model on all of our 60,000 training observations to compare performance. 
+Then we separately trained a full BART model on all of our 60,000 training observations to compare performance. 
 Our analysis compares ROUGE scores from the following three models:
 
 \begin{enumerate}
@@ -169,8 +169,8 @@ Our analysis compares ROUGE scores from the following three models:
 For each BART model, we tokenized the Reddit posts to a maximum of 1024 tokens, and the summaries to a maximum of 128 tokens. 
 Doing so would adequately tokenize the entire text for over 97\% of our data, and avoid overburdening our BART model with tokens being too long. 
 
-Through this training process, we learned the hard way the importance of checkpointing the model progress often. 
-Model training would sometimes crash or exhaust memory resources, and it was helpful to continue training from a checkpoint. 
+When training our models, our computing environment would run out of memory at times or fail unexpectedly. 
+Through this we learned the importance of checkpointing our model progress often, so we could continue training from a checkpoint and avoid losing progress. 
 
 \section{Results and discussion}
 
@@ -182,8 +182,9 @@ restrict our BART models to generate summaries with a maximum of 60 words.
 
 Our primary metric for evaluation was ROUGE. 
 Not only is ROUGE the primary metric used to measure performance in related research, 
-but the recall based approach was fitting for our analysis because we were most interested in having our summaries adequately capture the important words in the summary. 
+but the recall based approach was fitting for our analysis because we were most interested in having our summaries adequately capture the important words in the target summaries. 
 Additionally, our 60 word maximum restriction provided a guardrail against the model having a terribly low precision.
+Final results can be found in table 3. 
 
 \begin{table}[h]
   \centering
@@ -230,19 +231,18 @@ fine tuning on more data seems to be better than fine tuning on more specialized
 
 \subsection{Error Analysis}
 
-Next, we dug into the observations that had the lowest ROUGE scores at inference time to study where our models went wrong. 
-We were surprised to find that quite often, we felt our BART models produced TL;DR summaries that were even better than the true target summaries. 
+Next, we studied the observations that had the lowest ROUGE scores at inference time to understand where our models went wrong. 
+In our opinion, many of our low scoring BART summaries actually seemed to provide a more faithful summary of the post content than the true target summaries did. 
 It seems the true user-created summaries were sometimes trying to be funny or didn't actually summarize the content faithfully. 
-Whereas our BART models seemed to do a better job in these cases. 
 As an example, one post was a long story about a user's addiction to cannabis and his desire to abstain from smoking for a month. 
-We've pasted the summaries below to show how we feel the BART summary does a better job at providing a more fluent and faithful summary than the true summary. 
+We've pasted the summaries below to show how we feel the BART summary did a better job at summarizing important details than the true summary did. 
 
 \begin{itemize}
   \item True summary: Stay sober through October.
   \item BART Full summary: I'm taking a month off from smoking weed to prove to myself that it's not an issue.
 \end{itemize}
 
-On the other hand, there were some situations where our BART model clearly couldn't summarize the content very well. 
+On the other hand, there were some situations where our BART models clearly couldn't summarize the content very well. 
 Sometimes the BART models would just return the first few words of the content as its summary. 
 Other times the BART models would regurgitate important words from the content, but didn't actually provide a sensical summary. 
 We hypothesize that our BART models might perform better in some of these situations if we had more computing power to train the model on more observations. 
@@ -252,7 +252,7 @@ We hypothesize that our BART models might perform better in some of these situat
 Finally, as an additional benchmark for our models, we decided to manually generate summaries ourselves. 
 We wrote 100 summaries, with 25 in each subreddit genre, and computed ROUGE scores on them for comparison. 
 While we recognize the small sample size we are using could be a noisy estimate of the total dataset, 
-this gives an interesting benchmark and insight into how well we'd hope our BART model could perform.
+this still gives an interesting benchmark and insight into how well we'd hope our BART models could perform.
 For simplicity, we only compare the full BART model metrics to our manual summaries in table 4. 
 
 \begin{table}[h]
@@ -281,10 +281,10 @@ For simplicity, we only compare the full BART model metrics to our manual summar
   \hline
 
   \end{tabular}
-  \caption{\label{manual_summary} Manual Summary Comparisons}
+  \caption{\label{manual_summary} Manual summary comparisons}
 \end{table}
 
-In most cases, our manually generated summaries outperform the BART model by several ROUGE points. 
+In most cases, our manually generated summaries outperformed the BART model by several ROUGE points. 
 However, while manually generating the summaries, we found it particularly difficult to summarize the gamming subreddits because they often contained a lot of jargon that we didn't understand. 
 It was interesting to us that the BART model actually outperformed our manually generated summaries for the gaming subreddit genre. 
 
