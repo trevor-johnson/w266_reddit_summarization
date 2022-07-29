@@ -52,9 +52,9 @@ Most summarization research is focused on news articles. However, as social medi
 
 With this in mind, we used the Webis-TLDR-17 corpus (Völske et al., 2017), a social media dataset, to fine tune our text summarization model. This dataset provides a summarization corpus from the domain of social media, consisting of 3 million Reddit posts alongside so-called TL;DR summaries meaning "too long; didn't read".  These TL;DR summaries are written by social media posters writing long posts in anticipation of readers not having the patience to read an entire post. This gives us a text and summary written by the same person.
 
-In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' ('advice/story', 'gaming', 'media/lifestyle/sports', and 'other') and an overall model trained on all genres to evaluate whether a genre-specific model can outperform a general model. To categorize the observations into different genres we used the subreddit \footnote{subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the genre of the post. We feel the usefulness for understanding the importance of a genre-specific model could potentially extend beyond social media and be helpful in text summarization in many other domains including news articles.
+In addition, we wanted to explore the significance of understanding the genre of a post as it relates to model performance. We trained 4 separate models on 4 'genres' ('advice/story', 'gaming', 'media/lifestyle/sports', and 'other') and an overall model trained on all genres to evaluate whether a genre-specific model can outperform a general model. To categorize the observations into different genres we used the subreddit \footnote{subreddits are a forum dedicated to a specific topic on the website Reddit e.g., gaming, basketball, politics} of a post as a proxy for the genre of the post. We feel the usefulness for understanding the importance of a genre-specific model could potentially extend beyond social media and be helpful in text summarization in many other domains, including news articles.
 
-We evaluate the models performance by using ROUGE (Lin, 2004) metrics and comparing the model's genereated summaries to manually generated summaries that we crafted.
+We evaluate the models' performance by using ROUGE (Lin, 2004) metrics and comparing the model's generated summaries to manually generated summaries that we crafted.
 
 
 
@@ -62,7 +62,7 @@ We evaluate the models performance by using ROUGE (Lin, 2004) metrics and compar
 \section{Background}
 \label{sec:length}
 
-In 2018, a TL;DR challenge (Syed et al., 2018) was organized where participants submitted a model to do abstractive summarization on the Webis-TLDR-17 corpus dataset. The researchers report several summarization models they used in their research with a model they call “tldr-bottom-up” producing the highest ROUGE scores. The report does not provide a description of the nature of their “tldr-bottom-up” model. We include this model’s ROUGE scores in Table 3 as a way to benchmark our models scores. Since we used a much smaller sample of the dataset, the results aren’t exactly comparable, but we feel this still provides a valid reference point to judge our models’ performance.
+In 2018, a TL;DR challenge (Syed et al., 2018) was organized where participants submitted a model to do abstractive summarization on the Webis-TLDR-17 corpus dataset. The researchers report several summarization models they used in their research, with a model they call “tldr-bottom-up” producing the highest ROUGE scores. The report does not provide a description of the nature of their “tldr-bottom-up” model. We include this model’s ROUGE scores in Table 3 as a way to benchmark our models scores. Since we used a much smaller sample of the dataset, the results aren’t exactly comparable, but we feel this still provides a valid reference point to judge our models’ performance.
 
 More recently, it has been shown a BART-based model works best for the Reddit dataset (Chen, 2020). Chen found that the BART model performed well on this abstractive dataset because of its ability to generate factual summaries over other models. Given this, we chose to test a BART model combined with genre-specific training data to see if we could record even better results.
 
@@ -74,7 +74,7 @@ Before modeling, we performed exploratory data analysis to better understand the
 The dataset consisted of 3.8 million observations, each containing the full Reddit post, summary, and subreddit. 
 First, we explored word counts in each post and summary by splitting on white space. 
 Word counts were heavily skewed right in both the posts and summaries with average word counts of 278 and 27 respectively. 
-A small number of posts and summaries had as few as 1-2 words words, or in other cases, over 1,000 words. 
+Some of posts and summaries had as few as 1-2 words, or in other cases, over 1,000 words. 
 But the majority of observations had word counts in a reasonable range with 90\% of the posts containing between 42 and 795 words
 and 90\% of the summaries containing between 3 and 75 words. 
 Figure 1 shows histograms to visualize the distributions of the total word counts for the Reddit posts and summaries in our dataset. 
@@ -89,7 +89,7 @@ Studying these distributions helped us determine hyperparameters when fitting mo
 
 Next, we looked into individual observations in the data to understand the data on a more granular level. 
 Some Reddit posts and summaries would nonsensically repeat the same word over and over, or just contain one word. 
-With this in mind, we decided to filter down the dataset so it would only include posts with between 20 - 1000 total words and with at least 10 unique words. 
+With this in mind, we decided to filter down the dataset, so it would only include posts with between 20 - 1000 total words and with at least 10 unique words. 
 Additionally, each summary would only include between 2 - 100 total words and at least 2 unique words. 
 With these filters in place, about 300,000 records were removed from our dataset and we were able to deal with what we determined to be higher quality data. 
 
@@ -101,7 +101,7 @@ Because there were over 28,000 distinct subreddits in our dataset, it would be u
 Thus, we sought to group these subreddits into more general genre categories. 
 
 We considered creating a separate NLP model or use unsupervised learning techniques to systematically cluster the subreddits into similar categories, 
-but doing so was outside of the scope of what we were seeking to learn through this project. 
+but doing so was outside the scope of what we were seeking to learn through this project. 
 Thus, we ended up grouping the subreddits into genres by hand, making sure to categorize the most popular subreddits and create somewhat similar counts in each genre. 
 In the end, we grouped the data into 4 distinct subreddit genres: advice/story, gaming, media/lifestyle/sports, and other. 
 The counts for each subreddit genre can be found in table 1.
@@ -112,7 +112,7 @@ The counts for each subreddit genre can be found in table 1.
   \hline \textbf{Subreddit Genre} & \textbf{Post Count}\\ \hline
   Advice/Story & 1409813 \\
   Gaming & 501041 \\
-  Media/Liftstyle/Sports & 455228 \\
+  Media/Lifestyle/Sports & 455228 \\
   Other & 1184045 \\
   \hline
   \end{tabular}
@@ -130,7 +130,7 @@ BART achieves state-of-the-art performance on abstractive summarization tasks (A
 We also explored using Pegasus to generate our summaries. 
 Without fine tuning, both Pegasus and BART generated fluent abstractive summaries on our training data. 
 Because of BART's strong performance in related research and the ease of use, we decided BART would be a good fit to fine tune on our Reddit data. 
-In particular, we used a BART model that was pretrained on both XSum and CNN/Daily Mail datasets because it provided fluent summaries on our data without initial fine tuning. 
+In particular, we used a BART model that was pretrained on both XSum and CNN/Daily Mail datasets because it generated fluent summaries on our data without initial fine tuning. 
 
 When we began training BART models on our dataset and generating summaries, we quickly realized that the scale of our dataset would be a problem. 
 We frequently ran out of memory or would exhaust compute times during training and inference. 
@@ -142,7 +142,7 @@ Table 2 shows total observation counts and average word lengths in each of the s
 \begin{table*}
   \centering
   \begin{tabular}{lccc}
-  \hline \textbf{Dataset} & \textbf{\# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary legnth} \\ \hline
+  \hline \textbf{Dataset} & \textbf{\# docs (train/val/test)} & \textbf{avg. post length} & \textbf{avg. summary length} \\ \hline
   %\textbf{} & textbf{} & \multicolumn{words}{sentences} & \multicolumn{words}{sentences} \\
   Overall & 60,000/4,000/4,000  & 235 & 22 \\
   Advice/Story & 15,000/1,000/1,000 & 278 & 23 \\
@@ -171,7 +171,7 @@ For each BART model, we tokenized the Reddit posts to a maximum of 1024 tokens, 
 Doing so would adequately tokenize the entire text for over 97\% of our data, and avoid overburdening our BART model with tokens being too long. 
 
 When training our models, our computing environment would run out of memory at times or fail unexpectedly. 
-Through this we learned the importance of checkpointing our model progress often, so we could continue training from a checkpoint and avoid losing progress. 
+Through this, we learned the importance of checkpointing our model progress often, so we could continue training from a checkpoint and avoid losing progress. 
 
 \section{Results and discussion}
 
@@ -245,7 +245,7 @@ We've pasted the summaries below to show how we feel the BART summary did a bett
 
 On the other hand, there were some situations where our BART models clearly couldn't summarize the content very well. 
 Sometimes the BART models would just return the first few words of the content as its summary. 
-Other times the BART models would regurgitate important words from the content, but didn't actually provide a sensical summary. 
+Other times, the BART models would regurgitate important words from the content, but didn't actually provide a sensical summary. 
 We hypothesize that our BART models might perform better in some of these situations if we had more computing power to train the model on more observations. 
 
 \subsection{Manual Summary Analysis}
@@ -286,11 +286,11 @@ For simplicity, we only compare the full BART model metrics to our manual summar
 \end{table}
 
 In most cases, our manually generated summaries outperformed the BART model by several ROUGE points. 
-However, while manually generating the summaries, we found it particularly difficult to summarize the gamming subreddits because they often contained a lot of jargon that we didn't understand. 
+However, while manually generating the summaries, we found it particularly difficult to summarize the gaming subreddits because they often contained a lot of jargon that we didn't understand. 
 It was interesting to see how the BART model actually outperformed our manually generated summaries for the gaming subreddit genre. 
 
 \section{Conclusion}
-We find that a BART model trained on a larger generalized social media dataset produces higher ROUGE scores than an equivalent model trained on a smaller genre specific dataset. This generalized BART model achieves similar performance to the “tldr-bottom-up” model from prior research. For next steps, it may be interesting to explore if the size of the genre specific dataset was increased does the same pattern hold true.
+We find that a BART model trained on a larger generalized social media dataset produces higher ROUGE scores than an equivalent model trained on a smaller genre specific dataset. This generalized BART model achieves similar performance to the “tldr-bottom-up” model from prior research. For next steps, it may be interesting to explore if the same pattern holds true when increasing the size of the genre specific dataset.
 
 \section*{References}
  \noindent Armen Aghajanyan; Akshat Shrivastava; Anchit Gupta; Naman Goyal; Luke Zettlemoyer; Sonal Gupta. 2021. Better Fine-Tuning by Reducing Representational Collapse. \emph{ArXiv: 2008.03156}
